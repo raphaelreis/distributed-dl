@@ -52,6 +52,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 ## Authors
 
 * **Raphaël Reis Nunes** - *Initial work* -
-* **
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
+## Credits
+
+* James Neve modular centralized modular [neural network](https://github.com/jamesneve/go-neural-network): 
