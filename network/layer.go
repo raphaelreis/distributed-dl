@@ -10,6 +10,14 @@ func NewLayer(neurons int, activation string) *Layer {
 	return l
 }
 
+func (l *Layer) getNeuronsValues() []float64 {
+	inputTracker := make([]float64, len(l.Neurons))
+	for i := range l.Neurons {
+		inputTracker = append(inputTracker, l.Neurons[i].getNeuronValue())
+	}
+	return inputTracker
+}
+
 func (l *Layer) init(neurons int, activation string) {
 	n := make([]*Neuron, 0, neurons)
 

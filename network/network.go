@@ -12,6 +12,14 @@ type Network struct {
 	Out          []float64
 }
 
+func (n *Network) getNeuronsValues() [][]float64 {
+	inputTracker := make([][]float64, len(n.Layers))
+	for i := range n.Layers {
+		inputTracker = append(inputTracker, n.Layers[i].getNeuronsValues())
+	}
+	return inputTracker
+}
+
 func NewNetwork(in int, layers []int, activation string) *Network {
 	n := &Network{
 		InputNeurons: make([]*InputNeuron, 0, in),

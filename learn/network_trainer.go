@@ -1,7 +1,10 @@
 package learn
 
 import (
+	"encoding/csv"
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/raphaelreis/distributed-dl/network"
 	"github.com/raphaelreis/distributed-dl/trainingdata"
@@ -30,12 +33,14 @@ func NewNetworkTrainer(nw *network.Network, trainingData []trainingdata.Training
 }
 
 func (t *NetworkTrainer) TrainByGradientDescent(epochs, miniBatchSize int, testData []trainingdata.TrainingData) {
+	batchCount := len(t.trainingData) / miniBatchSize
+	inputTracker := make([][][]float64, len(t.trainingData))
 	for i := 0; i < epochs; i++ {
 		currentTrainingData := trainingdata.ShuffleTrainingData(t.trainingData)
-		batchCount := len(t.trainingData) / miniBatchSize
+
 		for j := 0; j < batchCount; j++ {
 			batch := currentTrainingData[j*miniBatchSize : (j+1)*miniBatchSize]
-			t.UpdateMiniBatch(batch)
+			inputTracker = append(inputTracker, t.UpdateMiniBatch(batch)...)
 		}
 
 		if t.reportResults {
@@ -43,13 +48,27 @@ func (t *NetworkTrainer) TrainByGradientDescent(epochs, miniBatchSize int, testD
 			fmt.Println("Epoch", i+1, ":", correct, "/", len(testData))
 		}
 	}
+
+	outFileName := "../data/rawinput.csv"
+	f, err := os.Create(outFileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	utils.matrixToString()
+	csvwriter := csv.NewWriter(f)
+	for _, matrix := range inputTracker {
+		_ = csvwriter.Write(utils.matrixToString(matrix, ","))
+	}
+	csvwriter.Flush()
+	f.Close()
 }
 
-func (t *NetworkTrainer) UpdateMiniBatch(miniBatch []trainingdata.TrainingData) {
+func (t *NetworkTrainer) UpdateMiniBatch(miniBatch []trainingdata.TrainingData) [][][]float64 {
 	nablaB, nablaW := t.initializeZeroBiasedWeights()
-
+	inputTracker := make([][][]float64, len(t.net.Layers))
 	for _, trainingDatum := range miniBatch {
 		deltaNablaB, deltaNablaW := t.Backpropagation(trainingDatum.TrainingInput, trainingDatum.DesiredOutputs)
+		inputTracker = append(inputTracker, t.net.getNeuronsValues()...)
 		for i := range nablaW {
 			for j := range nablaW[i] {
 				nablaB[i][j] += deltaNablaB[i][j]
@@ -69,6 +88,8 @@ func (t *NetworkTrainer) UpdateMiniBatch(miniBatch []trainingdata.TrainingData) 
 			}
 		}
 	}
+
+	return inputTracker
 }
 
 func (t *NetworkTrainer) initializeZeroBiasedWeights() ([][]float64, [][][]float64) {
@@ -88,7 +109,6 @@ func (t *NetworkTrainer) initializeZeroBiasedWeights() ([][]float64, [][][]float
 func (t *NetworkTrainer) Backpropagation(in, ideal []float64) ([][]float64, [][][]float64) {
 	// First, calculate the final output of the network for the training inputs
 	t.net.CalculateOutput(in)
-
 	// Make the array to calculate the error from each node
 	nablaB, nablaW := t.initializeZeroBiasedWeights()
 

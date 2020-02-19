@@ -8,11 +8,15 @@ import (
 type Neuron struct {
 	InSynapses  []*Synapse
 	OutSynapses []*Synapse
+	RawInput    float64
 	Bias        float64
 	Out         float64
 	Activation  string
 }
 
+func (n *Neuron) getNeuronValue() float64 {
+	return n.RawInput
+}
 func (n *Neuron) CreateSynapseTo(nTo *Neuron, weight float64) {
 	NewSynapseFromTo(n, nTo, weight)
 }
@@ -36,9 +40,9 @@ func (n *Neuron) CalculateOutputDelta() float64 {
 }
 
 func (n *Neuron) CalculateOutput() float64 {
-	z := n.CalculateWeightedInput()
+	n.RawInput = n.CalculateWeightedInput()
 
-	return n.activationFunction(z)
+	return n.activationFunction(n.RawInput)
 }
 
 func (n *Neuron) CalculateAndSendOutput() {
@@ -50,9 +54,9 @@ func (n *Neuron) CalculateAndSendOutput() {
 }
 
 func (n *Neuron) activationFunctionPrime(z float64) float64 {
-	if n.Activation == "sigmoid" {
+	if n.Activation == "sigmoid" { // Sigmoid
 		return n.activationFunction(z) * (1 - n.activationFunction(z))
-	} else if n.Activation == "relu" {
+	} else if n.Activation == "relu" { // Relu
 		if z > 0. {
 			return 1.
 		} else {
@@ -64,9 +68,9 @@ func (n *Neuron) activationFunctionPrime(z float64) float64 {
 }
 
 func (n *Neuron) activationFunction(z float64) float64 {
-	if n.Activation == "sigmoid" {
-		return 1.0 / (1.0 + math.Exp(-z)) // Sigmoid
-	} else if n.Activation == "relu" {
+	if n.Activation == "sigmoid" { // Sigmoid
+		return 1.0 / (1.0 + math.Exp(-z))
+	} else if n.Activation == "relu" { // Relu
 		return math.Max(0., z)
 	} else {
 		panic(fmt.Sprintf("Activation function: %v", n.Activation))

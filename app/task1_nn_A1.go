@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"errors"
@@ -16,7 +16,7 @@ func main() {
 	fmt.Println("Training MNIST dataset")
 
 	sample := flag.Float64("sample", 0.01, "Percentage of the Mnist dataset to train / test on.")
-	layers := flag.String("layers", "128,128,10", "The pattern of layers in the network, starting from the first hidden layer, described as integers separated by commas")
+	layers := flag.String("layers", "30,10", "The pattern of layers in the network, starting from the first hidden layer, described as integers separated by commas")
 	activation := flag.String("activation function", "relu", "The activation function for each single neuron")
 	costFunction := flag.String("cost-function", "cross-entropy", "The cost function used. Options: cross-entropy, quadratic")
 	regularization := flag.String("regularization", "l2", "The type of regularization. Options: none, l1, l2")
