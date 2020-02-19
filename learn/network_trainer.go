@@ -1,13 +1,11 @@
 package learn
 
 import (
-	"encoding/csv"
 	"fmt"
-	"log"
-	"os"
 
 	"github.com/raphaelreis/distributed-dl/network"
 	"github.com/raphaelreis/distributed-dl/trainingdata"
+	"github.com/raphaelreis/distributed-dl/utils"
 )
 
 type NetworkTrainer struct {
@@ -34,7 +32,7 @@ func NewNetworkTrainer(nw *network.Network, trainingData []trainingdata.Training
 
 func (t *NetworkTrainer) TrainByGradientDescent(epochs, miniBatchSize int, testData []trainingdata.TrainingData) {
 	batchCount := len(t.trainingData) / miniBatchSize
-	inputTracker := make([][][]float64, len(t.trainingData))
+	inputTracker := [][]float64{}
 	for i := 0; i < epochs; i++ {
 		currentTrainingData := trainingdata.ShuffleTrainingData(t.trainingData)
 
@@ -49,26 +47,16 @@ func (t *NetworkTrainer) TrainByGradientDescent(epochs, miniBatchSize int, testD
 		}
 	}
 
-	outFileName := "../data/rawinput.csv"
-	f, err := os.Create(outFileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	utils.matrixToString()
-	csvwriter := csv.NewWriter(f)
-	for _, matrix := range inputTracker {
-		_ = csvwriter.Write(utils.matrixToString(matrix, ","))
-	}
-	csvwriter.Flush()
-	f.Close()
+	outFileName := "./data/rawneuroninput/rawinput.csv"
+	utils.SaveMatrixCsv(inputTracker, outFileName)
 }
 
-func (t *NetworkTrainer) UpdateMiniBatch(miniBatch []trainingdata.TrainingData) [][][]float64 {
+func (t *NetworkTrainer) UpdateMiniBatch(miniBatch []trainingdata.TrainingData) [][]float64 {
 	nablaB, nablaW := t.initializeZeroBiasedWeights()
-	inputTracker := make([][][]float64, len(t.net.Layers))
+	inputTracker := [][]float64{}
 	for _, trainingDatum := range miniBatch {
 		deltaNablaB, deltaNablaW := t.Backpropagation(trainingDatum.TrainingInput, trainingDatum.DesiredOutputs)
-		inputTracker = append(inputTracker, t.net.getNeuronsValues()...)
+		inputTracker = append(inputTracker, t.net.GetNeuronsValues())
 		for i := range nablaW {
 			for j := range nablaW[i] {
 				nablaB[i][j] += deltaNablaB[i][j]
