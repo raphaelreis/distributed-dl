@@ -16,15 +16,15 @@ func main() {
 	fmt.Println("Training MNIST dataset")
 
 	sample := flag.Float64("sample", 0.01, "Percentage of the Mnist dataset to train / test on.")
-	layers := flag.String("layers", "30,10", "The pattern of layers in the network, starting from the first hidden layer, described as integers separated by commas")
-	activation := flag.String("activation function", "relu", "The activation function for each single neuron")
+	layers := flag.String("layers", "120,10", "The pattern of layers in the network, starting from the first hidden layer, described as integers separated by commas")
+	activation := flag.String("activation function", "sigmoid	", "The activation function for each single neuron (so far relu or sigmoid)")
 	costFunction := flag.String("cost-function", "cross-entropy", "The cost function used. Options: cross-entropy, quadratic")
 	regularization := flag.String("regularization", "l2", "The type of regularization. Options: none, l1, l2")
 	learningRate := flag.Float64("learning-rate", 0.1, "The speed of gradient descent")
 	lambda := flag.Float64("lambda", 5.0, "The lambda value for L2 Regularization. Doesn't do anything when using other modes")
 	reportResults := flag.Bool("report-results", true, "Whether or not to print results of individual epochs as they're completed")
 	epochs := flag.Int("epochs", 10, "The number of epochs to train for")
-	miniBatchSize := flag.Int("mini-batch-size", 128, "The mini-batch size for SGD")
+	miniBatchSize := flag.Int("mini-batch-size", 64, "The mini-batch size for SGD")
 
 	flag.Parse()
 	parsedLayers, err := parseLayers(*layers)
@@ -42,6 +42,7 @@ func main() {
 	trainingData := mnistData.MakeTrainingData(*sample)
 	testData := mnistData.MakeTestData(*sample)
 
+	fmt.Printf("Model parameters:\nLayers: %v | batchSize: %v | activation: %v\n", *parsedLayers, *miniBatchSize, *activation)
 	nt := learn.NewNetworkTrainer(n, trainingData, parsedCostFunction, parsedRegularization, *learningRate, *lambda, *reportResults)
 	nt.TrainByGradientDescent(*epochs, *miniBatchSize, testData)
 

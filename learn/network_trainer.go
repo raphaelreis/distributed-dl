@@ -30,10 +30,11 @@ func NewNetworkTrainer(nw *network.Network, trainingData []trainingdata.Training
 	}
 }
 
-func (t *NetworkTrainer) TrainByGradientDescent(epochs, miniBatchSize int, testData []trainingdata.TrainingData) {
+func (t *NetworkTrainer) TrainByGradientDescent(epochs, miniBatchSize int, testData []trainingdata.TrainingData, outFileName string) {
 	batchCount := len(t.trainingData) / miniBatchSize
 	inputTracker := [][]float64{}
 	for i := 0; i < epochs; i++ {
+		fmt.Printf("Epoch: %v\n", i)
 		currentTrainingData := trainingdata.ShuffleTrainingData(t.trainingData)
 
 		for j := 0; j < batchCount; j++ {
@@ -47,8 +48,10 @@ func (t *NetworkTrainer) TrainByGradientDescent(epochs, miniBatchSize int, testD
 		}
 	}
 
-	outFileName := "./data/rawneuroninput/rawinput.csv"
-	utils.SaveMatrixCsv(inputTracker, outFileName)
+	if outFileName != "" {
+		utils.SaveMatrixCsv(inputTracker, outFileName)
+	}
+
 }
 
 func (t *NetworkTrainer) UpdateMiniBatch(miniBatch []trainingdata.TrainingData) [][]float64 {
