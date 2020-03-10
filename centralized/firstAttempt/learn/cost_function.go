@@ -36,6 +36,7 @@ func newCrossEntropy() CostFunction {
 	return CostFunction(&c)
 }
 
+// TODO Optimize this function easy
 func (c *crossEntropy) CalculateDelta(layer *network.Layer, actualOutputs, idealOutputs []float64) []float64 {
 	r := make([]float64, len(layer.Neurons))
 	for i := range layer.Neurons {

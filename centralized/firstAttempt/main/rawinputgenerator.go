@@ -15,12 +15,12 @@ func main() {
 	trainingData := mnistData.MakeTrainingData(sample)
 	testData := mnistData.MakeTestData(sample)
 
-	batch := [2]int{64, 128}
-	neurons := [4]int{16, 32, 64, 128}
-	activation := [2]string{"relu", "sigmoid"}
-	regularizer := [3]string{"none", "l1", "l2"}
+	batch := [2]int{128}
+	neurons := []int{128}
+	activation := [2]string{"sigmoid"}
+	regularizer := [3]string{"l1", "l2", "none"}
 	costFunction := learn.CrossEntropy
-	learningRate := 0.2
+	learningRate := 0.1
 	lambda := 5.0
 	reportResults := false
 	epochs := 10
