@@ -1,5 +1,11 @@
 # Data 
-data/rawneuroninput
+data
 
 # Drafts
-main/draft.go
+draft.go
+
+# Results
+results
+
+# Jupyter checkpoints
+.ipynb_checkpoints
