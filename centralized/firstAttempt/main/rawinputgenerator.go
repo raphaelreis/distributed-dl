@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/raphaelreis/distributed-dl/learn"
-	"github.com/raphaelreis/distributed-dl/network"
+	"github.com/raphaelreis/distributed-dl/centralized/firstAttempt/learn"
+	"github.com/raphaelreis/distributed-dl/centralized/firstAttempt/network"
 	"github.com/raphaelreis/distributed-dl/trainingdata"
 )
 

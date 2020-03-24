@@ -1,6 +1,6 @@
 package learn
 
-import "github.com/raphaelreis/distributed-dl/network"
+import "github.com/raphaelreis/distributed-dl/centralized/firstAttempt/network"
 
 type CostFunction interface {
 	CalculateDelta(layer *network.Layer, actualOutputs, idealOutputs []float64) []float64
