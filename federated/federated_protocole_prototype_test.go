@@ -8,42 +8,33 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
-	"sync"
 	"testing"
 	"time"
 
-	"github.com/patrikeh/go-deep"
+	deep "github.com/patrikeh/go-deep"
 	"github.com/patrikeh/go-deep/training"
 )
 
 func TestFederatedProtocole(t *testing.T) {
+
 	rand.Seed(time.Now().UnixNano())
 
-	train, err := load("/Users/Raphael/go/src/github.com/ldsec/dpnn/data/mnist_data/normalized/mnist_train_norm.csv")
+	train, err := load("/Users/Raphael/go/src/github.com/raphaelreis/distributed-dl/data/mnist_dataset/normalized/mnist_train_norm.csv")
 	if err != nil {
 		panic(err)
 	}
-	test, err := load("/Users/Raphael/go/src/github.com/ldsec/dpnn/data/mnist_data/normalized/mnist_test_norm.csv")
+	test, err := load("/Users/Raphael/go/src/github.com/raphaelreis/distributed-dl/data/mnist_dataset/normalized/mnist_test_norm.csv")
 	if err != nil {
 		panic(err)
 	}
 
-	// for i := range train {
-	// 	for j := range train[i].Input {
-	// 		train[i].Input[j] = train[i].Input[j] / 255
-	// 	}
-	// }
-	// for i := range test {
-	// 	for j := range test[i].Input {
-	// 		test[i].Input[j] = test[i].Input[j] / 255
-	// 	}
-	// }
 	test.Shuffle()
 	train.Shuffle()
 
 	// Constants
 	numUsers := 5
-	epochs := 1
+	epochs := 5
+	globalNetId := numUsers + 1
 
 	globalNetwork := deep.NewNeural(&deep.Config{
 		Inputs:     len(train[0].Input),
@@ -54,8 +45,6 @@ func TestFederatedProtocole(t *testing.T) {
 		Bias:       true,
 	})
 
-	trainer := training.NewBatchTrainer(training.NewSGD(0.01, 0.5, 0.999, true), 1, 200, 8)
-
 	fmt.Printf("training: %d, val: %d, test: %d\n", len(train), len(test), len(test))
 
 	// Prepare networks and data
@@ -64,8 +53,12 @@ func TestFederatedProtocole(t *testing.T) {
 	for i := 0; i < numUsers; i++ {
 		nets[i] = deep.NewNeural(globalNetwork.Config)
 	}
-	nonOverlappingData := train.SplitSize(numUsers)
+	nonOverlappingData := train.SplitSize(numUsers + 1)
+	globalData := nonOverlappingData[globalNetId]
 	var globalWeights [][][]float64
+
+	statsPrinter := training.NewStatsPrinter()
+	statsPrinter.Init(globalNetwork)
 
 	// Iterate over epochs
 	for e := 0; e < epochs; e++ {
@@ -76,21 +69,31 @@ func TestFederatedProtocole(t *testing.T) {
 			}
 		}
 
-		var wg sync.WaitGroup
-		// Iterate over the number of users
-		wg.Add(len(nonOverlappingData))
-		for i, b := range nonOverlappingData {
-			go func(batch []training.Example) {
+		// var wg sync.WaitGroup
+		// // Iterate over the number of users
+		// wg.Add(numUsers)
 
-				// trainer = training.NewBatchTrainer(training.NewAdam(0.02, 0.9, 0.999, 1e-8), 1, 200, 8)
-				trainer.Train(nets[i], batch, test, 1)
+		fmt.Printf("Workers stats: \n")
+		for i := 0; i < numUsers; i++ {
+			// go func(n int) {
 
-				wg.Done()
-			}(b)
+			// 	trainer := training.NewBatchTrainer(training.NewSGD(0.01, 0.5, 0.999, true), 1, 200, 8)
+			// 	trainer.Train(nets[n], nonOverlappingData[n], test, 1)
+
+			// 	wg.Done()
+			// }(i)
+
+			trainer := training.NewBatchTrainer(training.NewAdam(0.02, 0.9, 0.999, 1e-8), 1, 200, 8)
+			trainer.Train(nets[i], nonOverlappingData[i], test, 1)
 		}
-		wg.Wait()
+		// wg.Wait()
 
+		fmt.Printf(("Master stats: \n"))
 		globalWeights = federatedWeights(nets, numUsers)
+		globalNetwork.ApplyWeights(globalWeights)
+
+		statsPrinter.PrintProgress(globalNetwork, globalData, 0, e)
+
 	}
 }
 
