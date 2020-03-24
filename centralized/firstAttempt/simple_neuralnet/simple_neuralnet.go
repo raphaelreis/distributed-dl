@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/raphaelreis/distributed-dl/learn"
-	"github.com/raphaelreis/distributed-dl/network"
+	"github.com/raphaelreis/distributed-dl/centralized/firstAttempt/learn"
+	"github.com/raphaelreis/distributed-dl/centralized/firstAttempt/network"
 	"github.com/raphaelreis/distributed-dl/trainingdata"
 )
 
@@ -44,7 +44,7 @@ func main() {
 
 	fmt.Printf("Model parameters:\nLayers: %v | batchSize: %v | activation: %v\n", *parsedLayers, *miniBatchSize, *activation)
 	nt := learn.NewNetworkTrainer(n, trainingData, parsedCostFunction, parsedRegularization, *learningRate, *lambda, *reportResults)
-	nt.TrainByGradientDescent(*epochs, *miniBatchSize, testData)
+	nt.TrainByGradientDescent(*epochs, *miniBatchSize, testData, "None")
 
 	correct := nt.Evaluate(testData)
 	fmt.Println("Final accuracy :", correct, "/", len(testData))

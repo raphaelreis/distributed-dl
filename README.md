@@ -55,4 +55,5 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Credits
 
-* James Neve modular centralized modular [neural network](https://github.com/jamesneve/go-neural-network): 
+* James Neve modular centralized modular [neural network](https://github.com/jamesneve/go-neural-network):
+# Go-deep library
