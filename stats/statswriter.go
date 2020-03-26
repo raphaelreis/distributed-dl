@@ -18,5 +18,6 @@ func NewStatsWriter(folder string) *StatWriter {
 
 // Init initialize the stat writer
 func (w *StatWriter) Init(master *deep.Neural, workers []*deep.Neural) {
-	os.Mkdir(w.folder)
+	os.Mkdir(w.folder, os.ModePerm)
+
 }
