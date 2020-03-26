@@ -8,3 +8,5 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.1.4 h1:ToftOQTytwshuOSj6bDSolVUa3GINfJP/fg3OkkOzQQ=
 github.com/stretchr/testify v1.1.4/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
+github.com/tsak/concurrent-csv-writer v0.0.0-20200206204244-84054e222625 h1:TdWwmfL3NElTL9lVgMhF49SJi+f3zOJNtK3cvux2eUM=
+github.com/tsak/concurrent-csv-writer v0.0.0-20200206204244-84054e222625/go.mod h1:Uqx1MUOk32TwWJtDv5b++tbPYlIZvqMvE9wP5TT8Cmg=
