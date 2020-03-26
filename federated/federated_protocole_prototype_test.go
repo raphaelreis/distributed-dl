@@ -32,13 +32,13 @@ func TestFederatedProtocole(t *testing.T) {
 	train.Shuffle()
 
 	// Constants
-	numUsers := 5
-	epochs := 5
-	globalNetId := numUsers + 1
+	numUsers := 2
+	epochs := 10
+	globalNetId := numUsers
 
 	globalNetwork := deep.NewNeural(&deep.Config{
 		Inputs:     len(train[0].Input),
-		Layout:     []int{50, 10},
+		Layout:     []int{32, 10},
 		Activation: deep.ActivationReLU,
 		Mode:       deep.ModeMultiClass,
 		Weight:     deep.NewNormal(0.6, 0.1), // slight positive bias helps ReLU
@@ -53,13 +53,18 @@ func TestFederatedProtocole(t *testing.T) {
 	for i := 0; i < numUsers; i++ {
 		nets[i] = deep.NewNeural(globalNetwork.Config)
 	}
-	nonOverlappingData := train.SplitSize(numUsers + 1)
+	batch := len(train) / (numUsers + 2)
+	fmt.Println("server batch size: ", batch)
+
+	nonOverlappingData := train.SplitSize(batch)
+
 	globalData := nonOverlappingData[globalNetId]
 	var globalWeights [][][]float64
 
 	statsPrinter := training.NewStatsPrinter()
 	statsPrinter.Init(globalNetwork)
 
+	testexamples := nonOverlappingData[numUsers+1]
 	// Iterate over epochs
 	for e := 0; e < epochs; e++ {
 
@@ -82,13 +87,14 @@ func TestFederatedProtocole(t *testing.T) {
 
 			// 	wg.Done()
 			// }(i)
-
+			examples := nonOverlappingData[i]
+			// fmt.Println("lenght of data: ", len(examples))
 			trainer := training.NewBatchTrainer(training.NewAdam(0.02, 0.9, 0.999, 1e-8), 1, 200, 8)
-			trainer.Train(nets[i], nonOverlappingData[i], test, 1)
+			trainer.Train(nets[i], examples, testexamples, 1)
 		}
 		// wg.Wait()
 
-		fmt.Printf(("Master stats: \n"))
+		fmt.Printf(("\nMaster stats: \n\n"))
 		globalWeights = federatedWeights(nets, numUsers)
 		globalNetwork.ApplyWeights(globalWeights)
 
