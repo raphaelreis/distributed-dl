@@ -1,4 +1,5 @@
 {
     "go.testFlags": ["-v"],
-    "go.testTimeout": "1h"
+    "go.testTimeout": "1h",
+    "python.pythonPath": "/Users/Raphael/anaconda3/envs/ada/bin/python"
 }
