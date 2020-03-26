@@ -29,17 +29,6 @@ func TestCentralizedProtocole(t *testing.T) {
 		panic(err)
 	}
 
-	for i := range train {
-		for j := range train[i].Input {
-			train[i].Input[j] = train[i].Input[j] / 255
-		}
-	}
-	for i := range test {
-		for j := range test[i].Input {
-			test[i].Input[j] = test[i].Input[j] / 255
-		}
-	}
-
 	test.Shuffle()
 	train.Shuffle()
 
