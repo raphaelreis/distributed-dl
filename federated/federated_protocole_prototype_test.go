@@ -33,9 +33,8 @@ func TestFederatedProtocole(t *testing.T) {
 	train.Shuffle()
 
 	// Constants
-	numUsers := 2
-	epochs := 10
-	globalNetId := numUsers
+	numUsers := 5
+	epochs := 2
 
 	globalNetwork := deep.NewNeural(&deep.Config{
 		Inputs:     len(train[0].Input),
@@ -54,18 +53,17 @@ func TestFederatedProtocole(t *testing.T) {
 	for i := 0; i < numUsers; i++ {
 		nets[i] = deep.NewNeural(globalNetwork.Config)
 	}
-	batch := len(train) / (numUsers + 2)
+	batch := len(train) / numUsers
 	fmt.Println("server batch size: ", batch)
 
 	nonOverlappingData := train.SplitSize(batch)
+	fmt.Println("Number of non-overlapping chunks: ", len(nonOverlappingData))
 
-	globalData := nonOverlappingData[globalNetId]
 	var globalWeights [][][]float64
 
 	statsPrinter := training.NewStatsPrinter()
 	statsPrinter.Init(globalNetwork)
 
-	testexamples := nonOverlappingData[numUsers+1]
 	// Iterate over epochs
 	for e := 0; e < epochs; e++ {
 
@@ -85,13 +83,9 @@ func TestFederatedProtocole(t *testing.T) {
 				examples := nonOverlappingData[n]
 				// fmt.Println("lenght of data: ", len(examples))
 				trainer := training.NewBatchTrainer(training.NewAdam(0.02, 0.9, 0.999, 1e-8), 1, 200, 8)
-				trainer.Train(nets[n], examples, testexamples, 1)
+				trainer.Train(nets[n], examples, test, 1)
 				wg.Done()
 			}(i)
-			// examples := nonOverlappingData[i]
-			// // fmt.Println("lenght of data: ", len(examples))
-			// trainer := training.NewBatchTrainer(training.NewAdam(0.02, 0.9, 0.999, 1e-8), 1, 200, 8)
-			// trainer.Train(nets[i], examples, testexamples, 1)
 		}
 		wg.Wait()
 
@@ -99,7 +93,7 @@ func TestFederatedProtocole(t *testing.T) {
 		globalWeights = federatedWeights(nets, numUsers)
 		globalNetwork.ApplyWeights(globalWeights)
 
-		statsPrinter.PrintProgress(globalNetwork, globalData, 0, e)
+		statsPrinter.PrintProgress(globalNetwork, test, 0, e)
 
 	}
 }
