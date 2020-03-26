@@ -18,13 +18,13 @@ import (
 func TestCentralizedProtocole(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
 
-	// train, err := load("/Users/Raphael/go/src/github.com/raphaelreis/distributed-dl/data/mnist_dataset/normalized/mnist_train_norm.csv")
-	train, err := load("/Users/Raphael/go/src/github.com/ldsec/dpnn/data/mnist_data/mnist_train.csv")
+	train, err := load("/Users/Raphael/go/src/github.com/raphaelreis/distributed-dl/data/mnist_dataset/normalized/mnist_train_norm.csv")
+	// train, err := load("/Users/Raphael/go/src/github.com/ldsec/dpnn/data/mnist_data/mnist_train.csv")
 	if err != nil {
 		panic(err)
 	}
-	// test, err := load("/Users/Raphael/go/src/github.com/raphaelreis/distributed-dl/data/mnist_dataset/normalized/mnist_test_norm.csv")
-	test, err := load("/Users/Raphael/go/src/github.com/ldsec/dpnn/data/mnist_data/mnist_test.csv")
+	test, err := load("/Users/Raphael/go/src/github.com/raphaelreis/distributed-dl/data/mnist_dataset/normalized/mnist_test_norm.csv")
+	// test, err := load("/Users/Raphael/go/src/github.com/ldsec/dpnn/data/mnist_data/mnist_test.csv")
 	if err != nil {
 		panic(err)
 	}
