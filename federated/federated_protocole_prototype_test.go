@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"sync"
 	"testing"
 	"time"
 
@@ -74,25 +75,25 @@ func TestFederatedProtocole(t *testing.T) {
 			}
 		}
 
-		// var wg sync.WaitGroup
-		// // Iterate over the number of users
-		// wg.Add(numUsers)
+		var wg sync.WaitGroup
+		// Iterate over the number of users
+		wg.Add(numUsers)
 
 		fmt.Printf("Workers stats: \n")
 		for i := 0; i < numUsers; i++ {
-			// go func(n int) {
-
-			// 	trainer := training.NewBatchTrainer(training.NewSGD(0.01, 0.5, 0.999, true), 1, 200, 8)
-			// 	trainer.Train(nets[n], nonOverlappingData[n], test, 1)
-
-			// 	wg.Done()
-			// }(i)
-			examples := nonOverlappingData[i]
-			// fmt.Println("lenght of data: ", len(examples))
-			trainer := training.NewBatchTrainer(training.NewAdam(0.02, 0.9, 0.999, 1e-8), 1, 200, 8)
-			trainer.Train(nets[i], examples, testexamples, 1)
+			go func(n int) {
+				examples := nonOverlappingData[n]
+				// fmt.Println("lenght of data: ", len(examples))
+				trainer := training.NewBatchTrainer(training.NewAdam(0.02, 0.9, 0.999, 1e-8), 1, 200, 8)
+				trainer.Train(nets[n], examples, testexamples, 1)
+				wg.Done()
+			}(i)
+			// examples := nonOverlappingData[i]
+			// // fmt.Println("lenght of data: ", len(examples))
+			// trainer := training.NewBatchTrainer(training.NewAdam(0.02, 0.9, 0.999, 1e-8), 1, 200, 8)
+			// trainer.Train(nets[i], examples, testexamples, 1)
 		}
-		// wg.Wait()
+		wg.Wait()
 
 		fmt.Printf(("\nMaster stats: \n\n"))
 		globalWeights = federatedWeights(nets, numUsers)
